@@ -82,6 +82,14 @@ def loop():
     board_led.value = True
     time.sleep(.5)
 
+    # Testing: Set the colorstrip to one color for a moment
+    #set_colorstrip((0xff, 0, 0), 1.0)
+    #time.sleep(2)
+    #set_colorstrip((0, 0xff, 0), 1.0)
+    #time.sleep(2)
+    #set_colorstrip((0, 0, 0xff), 1.0)
+    #time.sleep(2)
+
     # Wait for the pushbutton or the PIR sensor to activate
     print("Waiting for pushbutton or motion", end='')
     while True:
@@ -184,9 +192,9 @@ def set_colorstrip(color, brightness):
             Intensity of the lightstrip. 1.0 is brightest, 0.0 is off
     """
     # Scale the 0-255 value for each color to 65535-0
-    colorstrip_r.duty_cycle = int(brightness * ((color[0] / 255.0) * 65535.0))  # Red
-    colorstrip_g.duty_cycle = int(brightness * ((color[1] / 255.0) * 65535.0))  # Green
-    colorstrip_b.duty_cycle = int(brightness * ((color[2] / 255.0) * 65535.0))  # Blue
+    colorstrip_r.duty_cycle = 65535-int(brightness * ((color[0] / 255.0) * 65535.0))  # Red
+    colorstrip_g.duty_cycle = 65535-int(brightness * ((color[1] / 255.0) * 65535.0))  # Green
+    colorstrip_b.duty_cycle = 65535-int(brightness * ((color[2] / 255.0) * 65535.0))  # Blue
 
 def setup():
     """One time initialization code.
