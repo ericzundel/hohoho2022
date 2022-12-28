@@ -1,7 +1,10 @@
 # A Christmas gift of hardware and code for Annie, Arthur, and Casey 2022
+# Author: Eric Ayers <ericzundel@gmail.com>
+# Date: December 28, 2022
 #
-# Controls an attached strip of RGB LEDs.
+# Example code to control an attached strip of RGB LEDs.
 # Has code to read from a PIR (proxemity) sensor if you want to use that.
+# For more information, see README.md
 #
 # The microcontroller is an Adafruit KB2040. I just happened to have
 # a bunch of these lying around, you could use a Raspberry Pi Pico or
@@ -63,36 +66,10 @@ MAGENTA = (0xFF, 0x00, 0xFF)
 WHITE   = (0xFF, 0xFF, 0xFF)
 BLACK   = (0x00, 0x00, 0x00) # Not actually black, turns the LED off
 
-def setup():
-    """One time initialization code.
-    """
+########################################################
+# Add your new code into loop() or define new constants
+# and globals below.
 
-    # Variables declared for all functions need to be referenced
-    # with the 'global' keyword so that Python doesn't create a
-    # local variable instead that disappears after the function exits.
-    global board_led
-    global board_neopixel
-    global pushbutton
-    global pir_sensor
-    global colorstrip_r
-    global colorstrip_g
-    global colorstrip_b
-
-    board_led = digitalio.DigitalInOut(board.A3)
-    board_led.direction = digitalio.Direction.OUTPUT
-
-    board_neopixel = neopixel.NeoPixel(board.NEOPIXEL, 1)
-
-    pushbutton = digitalio.DigitalInOut(board.D6)
-    pushbutton.direction = digitalio.Direction.INPUT
-    pushbutton.pull = digitalio.Pull.UP
-
-    pir_sensor = digitalio.DigitalInOut(board.D7)
-    pir_sensor.direction = digitalio.Direction.INPUT
-
-    colorstrip_r = pwmio.PWMOut(board.D3, frequency=5000, duty_cycle=0)
-    colorstrip_b = pwmio.PWMOut(board.D4, frequency=5000, duty_cycle=0)
-    colorstrip_g = pwmio.PWMOut(board.D5, frequency=5000, duty_cycle=0)
 
 def loop():
     """Gets called in an infinite loop from the main code.
@@ -176,8 +153,14 @@ def loop():
     for i in range(0,5):
         rainbow(1.0, 2)
 
+    set_colorstrip(BLACK, 0.0)
+
     time.sleep(1)
 
+
+###################################################################
+# Add your new code above. No need to edit below this line.
+#
 def wait_for_pir_sensor(max_wait):
     """Wait for the PIR sensor to be active.
 
@@ -201,7 +184,6 @@ def wait_for_pir_sensor(max_wait):
 
     print("Timeout")
     return False
-
 
 def set_onboard_neopixel(color):
     """Sets the value of the onboard neopixel to a specific color
@@ -285,10 +267,40 @@ def colorwheel(color_wheel_position):
     color_wheel_position -= 170;
     return (color_wheel_position * 3, 255 - color_wheel_position * 3, 0);
 
+def setup():
+    """One time initialization code.
+    """
 
-###################################################################
-# No need to edit below this line.
-#
+    # Variables declared for all functions need to be referenced
+    # with the 'global' keyword so that Python doesn't create a
+    # local variable instead that disappears after the function exits.
+    global board_led
+    global board_neopixel
+    global pushbutton
+    global pir_sensor
+    global colorstrip_r
+    global colorstrip_g
+    global colorstrip_b
+
+    board_led = digitalio.DigitalInOut(board.A3)
+    board_led.direction = digitalio.Direction.OUTPUT
+
+    board_neopixel = neopixel.NeoPixel(board.NEOPIXEL, 1)
+
+    pushbutton = digitalio.DigitalInOut(board.D6)
+    pushbutton.direction = digitalio.Direction.INPUT
+    pushbutton.pull = digitalio.Pull.UP
+
+    pir_sensor = digitalio.DigitalInOut(board.D7)
+    pir_sensor.direction = digitalio.Direction.INPUT
+
+    # Duty cycle 100% means that the GPIO pins are high, meaning no
+    # current should flow through the LEDs, turning them off.
+    colorstrip_r = pwmio.PWMOut(board.D3, frequency=5000, duty_cycle=65535)
+    colorstrip_b = pwmio.PWMOut(board.D4, frequency=5000, duty_cycle=65535)
+    colorstrip_g = pwmio.PWMOut(board.D5, frequency=5000, duty_cycle=65535)
+
+# mainline code
 # Call 'setup()' once to initialize everything and 'loop()'
 # in an infinite while loop after that.
 if __name__ == "__main__":
