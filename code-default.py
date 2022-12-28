@@ -57,9 +57,11 @@ colorstrip_r = None
 colorstrip_g = None
 colorstrip_b = None
 
-# A color definition for "gold"
 # See https://www.rapidtables.com/web/color/RGB_Color.html
-COLOR = (0xFF, 0xD7, 0x00)
+# A color definition for "gold"
+#COLOR = (0xFF, 0xD7, 0x00)
+# After playing around, I like this color -EZA
+COLOR = (0xFF, 0x30, 0x05)
 
 def loop():
     """Gets called in an infinite loop from the main code.

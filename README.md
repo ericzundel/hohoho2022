@@ -55,7 +55,7 @@ connect closest to the microprocessor. The power pin is labeled iwth red marker 
 I found this bargain LED strip at Home Depot on sale gathering dust. Don't be 
 fooled like I was, this LED strip has to be all the same color
 at once, no matter what packaging designers want you to think with 
-their [colorful advertising](https://www.amazon.com/LED-Light-Strip-RGB-Changing-Phone-Remote-Bedroom/dp/B08JH5M6N3). No wonder it was so cheap.
+their [colorful advertising](https://www.amazon.com/LED-Light-Strip-RGB-Changing-Phone-Remote-Bedroom/dp/B08JH5M6N3). Also, someone goofed when printing up the circuit. R == Red, G == Blue and B == Green. No wonder it was so cheap.
 
 This strip is sticky on the back so that you can put it somewhere like
 behind a TV or under a shelf. It's also designed so that you can cut it 
