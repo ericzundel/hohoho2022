@@ -1,19 +1,18 @@
 # hohoho2022
-Merry Christmas 2022 Annie Arthur and Casey
+Merry Christmas 2022 Annie, Arthur, and Casey
 
-Original code is on [github](https://github.com/ericzundel/hohoho2022)
+Original code is on [github](https://github.com/ericzundel/hohoho2022).
 
 TL;DR  Install [Mu Editor](https://codewith.mu/) on your computer. 
 Plug a USB cable into the circuit board and you will see the code 
 that controls the lightstrip in "code.py" that you can modify to 
 control the light strip. 
 
-"Be nice to me or I will replace you with a very small shell script"
- - geeky tshirt
+"Be nice to me or I will replace you with a very small shell script." - popular geeky tshirt
 
 This Christmas I want to show you how you could make good on this threat
-by practicing coding an LED strip with  
-[Python](https://www.coursera.org/articles/what-is-python-used-for-a-beginners-guide-to-using-python), 
+by practicing coding 
+[Python](https://www.coursera.org/articles/what-is-python-used-for-a-beginners-guide-to-using-python) on an LED strip
 if you don't already know some.  It's not a shell script, but I think 
 it's better because Python is being used to automate a lot of real world 
 tasks and it is used by folks whose primary job is not software development.
@@ -23,10 +22,11 @@ I've soldered together a small Raspberry Pi RP2040 based
 an onboard neopixel LED that can change colors.  I also wired 
 in a few components:
 
-- An external LED just for fun
+- A single color external LED just for fun
+- A pushbutton
 - A dumb LED strip with all the LEDs wires so you can control the color of all
 of them at once.  
-- A PIR sensor that can detect a person nearby. This is used for turning on
+- A [PIR](https://learn.adafruit.com/pir-passive-infrared-proximity-motion-sensor) sensor that can detect a person nearby. This is used for turning on
 lights automatically, burglar alarms, and and things like that.
 
 I put [CircuitPython](http://circuitpython.org) onto the microcontroller
