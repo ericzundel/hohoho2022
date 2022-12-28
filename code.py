@@ -1,6 +1,19 @@
 # A Christmas gift of hardware and code for Annie, Arthur, and Casey 2022
 #
-# Controls an attached strip of neopixels
+# Controls an attached strip of RGB LEDs.
+# Has code to read from a PIR (proxemity) sensor if you want to use that.
+#
+# The microcontroller is an Adafruit KB2040. I just happened to have
+# a bunch of these lying around, you could use a Raspberry Pi Pico or
+# Adafruit Feather just as easily.
+#
+# The strip is a set of LEDs all wired together like this one
+#   https://www.amazon.com/Lepro-RGB-LED-Strip-Lights/dp/B07RFFJ7YL?th=1
+
+# Some of this code is derived from my LED workshop example in C++
+#   https://github.com/ericzundel/steam_workshop_ledstrip/blob/main/examples/workshop_example/workshop_example.ino
+# Which itself is based on the Adafruit NEOPIXEL library examples
+#   https://github.com/adafruit/Adafruit_NeoPixel/tree/master/examples
 
 import board
 import digitalio
@@ -17,17 +30,13 @@ board_led = None
 # KB2040 onboard neopixel
 board_neopixel = None
 
-# Neopixel strip attached to pin D8
-strip_neopixel = None
-
 # LED strip attached to pins D2,D3,D4
 colorstrip_r = None
 colorstrip_g = None
 colorstrip_b = None
 
-#
-#
-# A few notes on the next lines:
+# A color definition you can use in your code
+# A few notes on the next line:
 # - A value inside of parenthesis is called a tuple.
 # - You can pass a tuple as a single argument in python.
 # - The values for a color can range from 0 to 255 in decimal (base 10)
@@ -36,22 +45,27 @@ colorstrip_b = None
 #   0-255 yields PURPLE = (160, 32, 240)
 # - People often use hex for encoding colors so I'm going to use it.
 PURPLE = (0xA0, 0x20, 0xF0)
-RED = (0xFF, 0x00, 0x00)
-GREEN = (0x00, 0xFF, 0x00)
-BLUE = (0x00, 0x00, 0xFF)
-YELLOW = (0xFF, 0xFF, 0x00)
-WHITE = (0xFF, 0xFF, 0xFF)
-BLACK = (0x00, 0x00, 0x00) # Not actually black, turns the LED off
 
-# setup()
-# One time initialization code
+# Here are some other standard colors
+# - Want more colors? Visit https://www.rapidtables.com/web/color/RGB_Color.html
+RED     = (0xFF, 0x00, 0x00)
+GREEN   = (0x00, 0xFF, 0x00)
+BLUE    = (0x00, 0x00, 0xFF)
+YELLOW  = (0xFF, 0xFF, 0x00)
+CYAN    = (0x00, 0xFF, 0xFF)
+MAGENTA = (0xFF, 0x00, 0xFF)
+WHITE   = (0xFF, 0xFF, 0xFF)
+BLACK   = (0x00, 0x00, 0x00) # Not actually black, turns the LED off
+
 def setup():
+    """One time initialization code.
+    """
+
     # Variables declared for all functions need to be referenced
     # with the 'global' keyword so that Python doesn't create a
     # local variable instead that disappears after the function exits.
     global board_led
     global board_neopixel
-    global strip_neopixel
     global colorstrip_r
     global colorstrip_g
     global colorstrip_b
@@ -59,33 +73,41 @@ def setup():
     board_led = digitalio.DigitalInOut(board.A3)
     board_led.direction = digitalio.Direction.OUTPUT
     board_neopixel = neopixel.NeoPixel(board.NEOPIXEL, 1)
-    strip_neopixel = neopixel.NeoPixel(board.D9, 100)
     colorstrip_r = pwmio.PWMOut(board.D3, frequency=5000, duty_cycle=0)
     colorstrip_b = pwmio.PWMOut(board.D4, frequency=5000, duty_cycle=0)
     colorstrip_g = pwmio.PWMOut(board.D5, frequency=5000, duty_cycle=0)
 
-# loop()
-# Gets called in an infinite loop from the main code.
-# Follows the pattern of the Arduino development environment.
 def loop():
+    """Gets called in an infinite loop from the main code.
+    """
+
     # Indentation is important in Python. Make sure everything lines up if you want it
     # to live inside of a function or a loop.
 
     # Prints "Hello world!" to the Serial (CircuitPython REPL) window in Mu Editor
     print("Hello World!")
-    board_led.value = True
-    time.sleep(1)
+
+    # Blink an LED just to show how that's done.
+    # Note that this LED is wired up with its ground lead to the MCU pin
+    # so that it turns on when the pin is low (False) and turns off when
+    # the pin is high (True)
     board_led.value = False
-
-    # Set the onboard neopixel to purple (see function defined below)
-    set_onboard_neopixel(PURPLE)
-
-    # Fade the strip in and out
-    fade_colorstrip(PURPLE, 0, 1.0, 2)
     time.sleep(1)
-    fade_colorstrip(PURPLE, 1.0, 0, 2)
+    board_led.value = True
 
+    # Blink the onboard neopixel to purple (see function defined below)
+    set_onboard_neopixel(PURPLE)
+    time.sleep(1)
+    set_onboard_neopixel(BLACK)
+
+    # Set the colorstrip to one color for a moment
+    set_colorstrip(PURPLE, 1.0)
+    time.sleep(2)
+
+    # Use a loop to set some colors manually
     for brightness in (1.0, .5, .1):
+        # Indentation is important in Python. Make sure everything lines
+        # up if you want it to live inside of a function or a loop.
         delay = .25
         set_colorstrip(RED, brightness)
         time.sleep(delay)
@@ -95,25 +117,47 @@ def loop():
         time.sleep(delay)
         set_colorstrip(YELLOW, brightness)
         time.sleep(delay)
-        set_colorstrip(PURPLE, brightness)
+        set_colorstrip(CYAN, brightness)
+        time.sleep(delay)
+        set_colorstrip(MAGENTA, brightness)
         time.sleep(delay)
         set_colorstrip(BLACK, brightness)
 
 
-    # Make the lights chase down the neopixel strip
-    light_chase([PURPLE, RED, YELLOW, WHITE], .25, 10)
+    # Fade the strip in and out in one color
+    linearfade_colorstrip(PURPLE, 0, 1.0, 2)
+    time.sleep(1)
+    linearfade_colorstrip(PURPLE, 1.0, 0, 2)
+
+    # Rainbow effect for 10 seconds
+    for i in range(0,5):
+        rainbow(1.0, 2)
+
     time.sleep(1)
 
-# set_onboard_neopixel(value)
-# Sets the value of the onboard neopixel to a specific color
-#   color - a tuple of 3 values for (red, green, blue) each from 0 - 255
 def set_onboard_neopixel(color):
+    """Sets the value of the onboard neopixel to a specific color
+
+        color : tuple
+            Three values for (red, green, blue) each from 0 - 255
+    """
     global board_neopixel
     board_neopixel[0] = color
     board_neopixel.show()
 
+def linearfade_colorstrip(color, start_brightness, end_brightness, duration):
+    """Fade the colorstrip from one brightness level to another over linearly the specified time
 
-def fade_colorstrip(color, start_brightness, end_brightness, duration):
+        color : tuple of (int, int, int)
+            Color to use for the fade operation
+        start_brightness : float
+            Value from 0 (off) to 1.0 (full on) to start the fade operation
+        end_brightness : float
+            Value from 0 (off) to 1.0 (full on) to end the fade operation.  The colorstrip
+            will be left at this value when the function exits.
+        duration : float
+            Amount of time in seconds that the fade should last.
+    """
     interval = duration / 100
     brightness_increment = (end_brightness - start_brightness) / 100
     for i in range(0, 100):
@@ -121,25 +165,64 @@ def fade_colorstrip(color, start_brightness, end_brightness, duration):
         set_colorstrip(color, brightness)
         time.sleep(interval)
 
-# set_colorstrip(color, brightness)
-# Set the color strip to the specified color and brightness
-#  color - an r,g,b color tuple with values 0-255 for each color
-#  brightness - 1.0 is brightest, 0.0 is off
+def rainbow(brightness, duration):
+    """Make all LEDs on the strip change colors in a rainbow pattern over time.
+
+        brightness : float
+            Intensity of the lightstrip. 1.0 is brightest, 0.0 is off
+
+        duration : float
+            The number of seconds to run the rainbow effect.
+    """
+    interval = duration / 100.0
+
+    for j in range(0,255):
+        set_colorstrip(colorwheel(j), brightness)
+        time.sleep(interval)
+
 def set_colorstrip(color, brightness):
+    """Set the color strip to the specified color and brightness
+
+        color : tuple of (int, int, int)
+            An r,g,b color tuple with values 0-255 for each color
+        brightness : float
+            Intensity of the lightstrip. 1.0 is brightest, 0.0 is off
+    """
     # Scale the 0-255 value for each color to 65535-0
     colorstrip_r.duty_cycle = 65535-int(brightness * ((color[0] / 255.0) * 65535.0))  # Red
     colorstrip_g.duty_cycle = 65535-int(brightness * ((color[1] / 255.0) * 65535.0))  # Green
     colorstrip_b.duty_cycle = 65535-int(brightness * ((color[2] / 255.0) * 65535.0))  # Blue
 
-# light_chase(colors, delay, loops)
-# Make the lights chase each other down the strip
-#   colors - a list of color tuples to write to the strip
-#   delay - delay in seconds before making the light move one pixel
-#   loops - number of times to repeat the chase
-def light_chase(colors, delay, loops):
-    for loop in range(0,loops):
-        pass
+def colorwheel(color_wheel_position):
+    """Use the colorwheel model where a single value maps to an RGB color.
 
+        color_wheel_position : int
+            Value from 0-255 representing a single color on the colorwheel.
+            The colors are a transition r - g - b - back to r.
+    """
+    # Did you accidentally pass a value out of range? Let me fix that for you.
+    color_wheel_position = abs(int(color_wheel_position) % 256)
+
+    # 0-84 is in the red to green range
+    color_wheel_position = 255 - color_wheel_position
+    if (color_wheel_position < 85):
+        return (255 - color_wheel_position * 3, 0, color_wheel_position * 3);
+
+    # 85-169 is in the green to blue range
+    if (color_wheel_position < 170):
+        color_wheel_position -= 85;
+        return (0, color_wheel_position * 3, 255 - color_wheel_position * 3);
+
+    # 170-255 is in the blue to red range
+    color_wheel_position -= 170;
+    return (color_wheel_position * 3, 255 - color_wheel_position * 3, 0);
+
+
+###################################################################
+# No need to edit below this line.
+#
+# Call 'setup()' once to initialize everything and 'loop()'
+# in an infinite while loop after that.
 if __name__ == "__main__":
     setup()
     while True:
