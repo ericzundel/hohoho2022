@@ -45,8 +45,8 @@ USB )  MCU  |   +             +     -   |
 The PIR sensor is marked with red and green marker to show you where power and 
 ground should be connected. The middle pin is the signal pin.
 The PIR sensor has two tiny potentiometers you can adjust with a small screwdriver.
-- T : adjusts the time the PIR signal will remain high. Turn clockwise to lower.
-- S : adjusts the sensitivity of the PIR signal. Turn clockwise to lower.
+- T : adjusts the time the PIR signal will remain high. Turn clockwise to raise. Default is to set it all the way left.
+- S : adjusts the sensitivity of the PIR signal. Turn clockwise to raise. Default is different on each sensor.
 
 The LED strip is marked +5V, R, G, B on the strip itself. The four pins 
 connect closest to the microprocessor. The power pin is labeled iwth red marker on the circuit board.
